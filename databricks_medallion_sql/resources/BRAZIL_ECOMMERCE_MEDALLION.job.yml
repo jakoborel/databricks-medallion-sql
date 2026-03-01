@@ -1,0 +1,35 @@
+resources:
+  jobs:
+    BRAZIL_ECOMMERCE_MEDALLION:
+      name: BRAZIL_ECOMMERCE_MEDALLION
+
+      tasks:
+
+        - task_key: BRONZE__ORDERS_RAW
+          sql_task:
+            warehouse_id: ${var.WAREHOUSE_ID}
+            file:
+              path: ../src/brazil_ecommerce/bronze/ORDERS_RAW.sql
+            parameters:
+              CATALOG: ${var.CATALOG}
+              ORDERS_CSV_PATH: ${var.ORDERS_CSV_PATH}
+
+        - task_key: SILVER__ORDERS
+          depends_on:
+            - task_key: BRONZE__ORDERS_RAW
+          sql_task:
+            warehouse_id: ${var.WAREHOUSE_ID}
+            file:
+              path: ../src/brazil_ecommerce/silver/ORDERS.sql
+            parameters:
+              CATALOG: ${var.CATALOG}
+
+        - task_key: GOLD__FACT_ORDERS_VW
+          depends_on:
+            - task_key: SILVER__ORDERS
+          sql_task:
+            warehouse_id: ${var.WAREHOUSE_ID}
+            file:
+              path: ../src/brazil_ecommerce/gold/FACT_ORDERS_VW.sql
+            parameters:
+              CATALOG: ${var.CATALOG}

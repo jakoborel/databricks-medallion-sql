@@ -10,12 +10,12 @@ include:
 
 # Variable declarations. These variables are assigned in the dev/prod targets below.
 variables:
-  warehouse_id:
+  WAREHOUSE_ID:
     description: The warehouse to use
-  catalog:
+  CATALOG:
     description: The catalog to use
-  schema:
-    description: The schema to use
+  ORDERS_CSV_PATH:
+    description: The file path for Brazil Ecommerce Orders dataset
 
 targets:
   dev:
@@ -28,9 +28,18 @@ targets:
     workspace:
       host: https://dbc-2d5e8000-65da.cloud.databricks.com
     variables:
-      warehouse_id: 5938af52334fdf65
-      catalog: dev
-      schema: brazil_ecommerce_bronze
+      WAREHOUSE_ID: 5938af52334fdf65
+      CATALOG: dev
+      ORDERS_CSV_PATH: /Volumes/dev/brazil_ecommerce_bronze/dev_brazil_ecommerce_bronze/olist_orders_dataset.csv
+
+  uat:
+    mode: development
+    workspace:
+      host: https://dbc-2d5e8000-65da.cloud.databricks.com
+    variables:
+      WAREHOUSE_ID: 5938af52334fdf65
+      CATALOG: uat
+      ORDERS_CSV_PATH: /Volumes/uat/brazil_ecommerce_bronze/uat_brazil_ecommerce_bronze/olist_orders_dataset.csv
 
   prod:
     mode: production
@@ -39,9 +48,9 @@ targets:
       # We explicitly deploy to /Workspace/Users/jakoborel@gmail.com to make sure we only have a single copy.
       root_path: /Workspace/Users/jakoborel@gmail.com/.bundle/${bundle.name}/${bundle.target}
     variables:
-      warehouse_id: 5938af52334fdf65
-      catalog: dev
-      schema: brazil_ecommerce_bronze
+      WAREHOUSE_ID: 5938af52334fdf65
+      CATALOG: prod
+      ORDERS_CSV_PATH: /Volumes/prod/brazil_ecommerce_bronze/prod_brazil_ecommerce_bronze/olist_orders_dataset.csv
     permissions:
       - user_name: jakoborel@gmail.com
         level: CAN_MANAGE
