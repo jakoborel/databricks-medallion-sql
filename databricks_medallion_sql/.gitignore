@@ -1,0 +1,15 @@
+.databricks/
+.bundle/
+.databrickscfg
+build/
+dist/
+__pycache__/
+*.pyc
+.vscode/
+*.egg-info
+.venv/
+.env
+scratch/**
+!scratch/README.md
+Thumbs.db
+.DS_Store
