@@ -9,7 +9,7 @@ __pycache__/
 *.egg-info
 .venv/
 .env
-scratch/**
-!scratch/README.md
+databricks_medallion_sql/scratch/**
+!databricks_medallion_sql/scratch/README.md
 Thumbs.db
 .DS_Store
