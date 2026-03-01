@@ -9,6 +9,7 @@ A SQL-only medallion architecture and CI/CD pipeline implemented in Databricks u
 - Git-based source control and deployment 
 
 All transformations are written in SQL and executed as warehouse-backed job tasks.
+This project demonstrates how to build a production-style analytics pipeline for stable deployment and tracked changes.
 
 ## Architecture
 
@@ -58,6 +59,9 @@ Each task runs as a SQL task against a Serverless SQL Warehouse.
 
 ## Run Locally
 
+Requires Databricks CLI auth profile
+Requires WAREHOUSE_ID, CATALOG, ORDERS_CSV_PATH set in databricks.yml targets
+
 From the bundle directory:
 
 ```bash
@@ -87,3 +91,23 @@ databricks_medallion_sql/
 ```
 
 Additional documentation is available in /docs.
+
+## Production Hardening Roadmap
+Planned enhancements to evolve this project toward a production-grade data platform:
+
+- Incremental bronze ingestion (append-only / backfill-safe loads)
+- MERGE-based upserts in silver to handle late-arriving updates
+- Data quality validation layer (constraints / expectations and fail-fast checks)
+- CI/CD via GitHub Actions (automated `bundle validate`, deploy, and promotion gates)
+- Environment promotion workflow (dev → uat → prod) with approval steps
+- Governance hardening:
+  - Row-level security (RLS) for audience-specific access
+  - Column masking for sensitive fields (e.g., PII)
+  - Gold-only exposure patterns for most consumers
+- Secure data access API:
+  - Service-to-service auth (no user tokens)
+  - Read-only access scoped to approved gold datasets
+  - Rate limiting, auditing, and least-privilege access
+- Downstream consumption separation:
+  - Separate repository (or repos) for visualization layers (Dashboards / BI)
+  - Treat gold datasets as stable contracts for external consumers
