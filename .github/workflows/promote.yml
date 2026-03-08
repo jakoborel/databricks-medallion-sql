@@ -1,0 +1,48 @@
+name: Promote - UAT / Prod
+
+on:
+  # Manual execution of this action allows the user to select which env to prmomote to. This ensures that something going to uat or prod requires human to run.defaults:
+    # Another approach that could also be viable: push to main -> deploy dev, tag release -> deploy uat, manual approval -> deploy prod.
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Which bundle target to deploy"
+        required: true
+        type: choice
+        options: [ uat, prod ]
+
+concurrency:
+  group: promote-${{ inputs.target }}
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+
+    # This is what ties the job to GitHub Environment gating
+    environment: ${{ inputs.target }}
+
+    permissions:
+      contents: read
+      id-token: write
+
+    env:
+      DATABRICKS_AUTH_TYPE: github-oidc
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: databricks/setup-cli@main
+
+      - name: Validate
+        working-directory: databricks_medallion_sql
+        run: databricks bundle validate -t ${{ inputs.target }}
+
+      - name: Plan
+        working-directory: databricks_medallion_sql
+        run: databricks bundle plan -t ${{ inputs.target }}
+
+      - name: Deploy
+        working-directory: databricks_medallion_sql
+        run: databricks bundle deploy -t ${{ inputs.target }} --auto-approve
