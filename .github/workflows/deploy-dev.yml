@@ -1,0 +1,40 @@
+name: CD - Deploy to Dev
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "databricks_medallion_sql/**"
+
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: false
+
+jobs:
+  deploy-dev:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    env:
+      DATABRICKS_AUTH_TYPE: github-oidc
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: databricks/setup-cli@main
+
+      - name: Validate
+        working-directory: databricks_medallion_sql
+        run: databricks bundle validate -t dev
+
+      - name: Deploy to Dev
+        working-directory: databricks_medallion_sql
+        run: databricks bundle deploy -t dev --auto-approve
+
+      # Optional: smoke run after deploy
+      - name: Run job (Dev)
+        working-directory: databricks_medallion_sql
+        run: databricks bundle run BRAZIL_ECOMMERCE_MEDALLION -t dev
