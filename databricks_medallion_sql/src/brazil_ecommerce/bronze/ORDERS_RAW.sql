@@ -17,4 +17,4 @@ FROM read_files(
     header => true
 );
 
-# Test CI/CD Comment
+-- Test CI/CD Comment
