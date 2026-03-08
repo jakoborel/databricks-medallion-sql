@@ -33,7 +33,7 @@ targets:
       ORDERS_CSV_PATH: /Volumes/dev/brazil_ecommerce_bronze/dev_brazil_ecommerce_bronze/olist_orders_dataset.csv
 
   uat:
-    mode: development
+    mode: production
     workspace:
       host: https://dbc-2d5e8000-65da.cloud.databricks.com
     variables:
