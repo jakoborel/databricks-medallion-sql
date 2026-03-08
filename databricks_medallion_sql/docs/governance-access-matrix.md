@@ -4,6 +4,8 @@ This document defines access permissions for the medallion architecture across e
 
 Access control is implemented using **Unity Catalog privileges** and is granted at the **schema level** where possible.
 
+Full implementation of group- and service-principal-based governance is designed in this repository but requires a paid Databricks environment with full identity management support.
+
 Principals used in this model:
 
 | Principal | Type | Description |
