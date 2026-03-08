@@ -1,0 +1,34 @@
+name: Promote to UAT
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: promote-uat
+  cancel-in-progress: false
+
+jobs:
+  promote-uat:
+    runs-on: ubuntu-latest
+    environment: uat
+
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: databricks/setup-cli@main
+
+      - name: Validate
+        working-directory: databricks_medallion_sql
+        run: databricks bundle validate -t uat
+
+      - name: Plan
+        working-directory: databricks_medallion_sql
+        run: databricks bundle plan -t uat
+
+      - name: Deploy
+        working-directory: databricks_medallion_sql
+        run: databricks bundle deploy -t uat --auto-approve
