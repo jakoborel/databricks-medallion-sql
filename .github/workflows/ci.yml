@@ -30,7 +30,7 @@ jobs:
       # OIDC auth (recommended)
       DATABRICKS_AUTH_TYPE: github-oidc
       DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-      DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
 
       # If using PAT instead, comment the 3 env vars above and uncomment below:
       # DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
