@@ -22,10 +22,6 @@ jobs:
     # This is what ties the job to GitHub Environment gating
     environment: ${{ inputs.target }}
 
-    permissions:
-      contents: read
-      id-token: write
-
     env:
       DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
       DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}

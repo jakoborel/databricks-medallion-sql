@@ -21,20 +21,9 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # If you're using OIDC, you still need id-token permission even for plan/validate
-    permissions:
-      contents: read
-      id-token: write
-
     env:
-      # OIDC auth (recommended)
-      DATABRICKS_AUTH_TYPE: github-oidc
       DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
       DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-
-      # If using PAT instead, comment the 3 env vars above and uncomment below:
-      # DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-      # DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
