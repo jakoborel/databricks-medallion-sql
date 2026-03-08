@@ -1,0 +1,42 @@
+name: Promote to Prod
+
+on:
+  workflow_run:
+    workflows: ["Promote to UAT"]
+    types:
+      - completed
+    branches:
+      - main
+
+concurrency:
+  group: promote-prod
+  cancel-in-progress: false
+
+jobs:
+  promote-prod:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    environment: prod
+
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - uses: databricks/setup-cli@main
+
+      - name: Validate
+        working-directory: databricks_medallion_sql
+        run: databricks bundle validate -t prod
+
+      - name: Plan
+        working-directory: databricks_medallion_sql
+        run: databricks bundle plan -t prod
+
+      - name: Deploy
+        working-directory: databricks_medallion_sql
+        run: databricks bundle deploy -t prod --auto-approve
