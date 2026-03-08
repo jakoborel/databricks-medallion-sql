@@ -36,6 +36,7 @@ targets:
     mode: production
     workspace:
       host: https://dbc-2d5e8000-65da.cloud.databricks.com
+      root_path: /Workspace/Shared/databricks_medallion_sql/uat
     variables:
       WAREHOUSE_ID: 5938af52334fdf65
       CATALOG: uat
@@ -46,7 +47,7 @@ targets:
     workspace:
       host: https://dbc-2d5e8000-65da.cloud.databricks.com
       # We explicitly deploy to /Workspace/Users/jakoborel@gmail.com to make sure we only have a single copy.
-      root_path: /Workspace/Users/jakoborel@gmail.com/.bundle/${bundle.name}/${bundle.target}
+      root_path: /Workspace/Shared/databricks_medallion_sql/prod
     variables:
       WAREHOUSE_ID: 5938af52334fdf65
       CATALOG: prod
