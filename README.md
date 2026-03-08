@@ -4,6 +4,7 @@ A SQL-only medallion architecture and CI/CD pipeline implemented in Databricks u
 
 - Databricks Asset Bundles (DAB)
 - Serverless SQL Warehouse
+- Github Actions CI/CD
 - Environment targets (dev / uat / prod)
 - Bronze → Silver → Gold layering
 - Git-based source control and deployment 
@@ -55,7 +56,64 @@ Tasks:
 - `SILVER__ORDERS`
 - `GOLD__FACT_ORDERS_VW`
 
-Each task runs as a SQL task against a Serverless SQL Warehouse.
+Each task runs as a SQL task against a Serverless SQL Warehouse. The same job definition is deployed to each environment with environment-specific parameters.
+
+## CI/CD Pipeline
+
+This project uses **GitHub Actions with Databricks Asset Bundles** to implement a promotion-based deployment workflow.
+
+### Pipeline Flow
+
+```
+Pull Request
+      ↓
+CI Validation
+(bundle validate + plan)
+      ↓
+Merge to main
+      ↓
+Deploy to DEV
+      ↓
+Manual Promotion
+      ↓
+Deploy to UAT
+      ↓
+Automatic Trigger
+      ↓
+Deploy to PROD (approval required)
+```
+
+### Workflow Details
+
+#### CI (Pull Requests)
+Runs validation checks before code can be merged:
+
+- `databricks bundle validate`
+- `databricks bundle plan`
+
+#### Automatic Dev Deployment
+
+When code is merged to `main`:
+
+```
+databricks bundle deploy -t dev
+```
+
+This keeps the development environment continuously updated.
+
+#### UAT Promotion
+
+Deployment to UAT is manually triggered via GitHub Actions:
+
+```
+databricks bundle deploy -t uat
+```
+
+#### Production Promotion
+
+Production deployment is automatically triggered **only after a successful UAT deployment**, ensuring that code cannot skip environments.
+
+The `prod` environment is protected by GitHub environment approval rules.
 
 ## Run Locally
 
@@ -92,22 +150,35 @@ databricks_medallion_sql/
 
 Additional documentation is available in /docs.
 
+## Deployment Model
+
+Databricks Asset Bundles deploy resources to environment-specific workspace paths:
+
+```
+/Workspace/Users/<user>/.bundle/...   (development mode)
+/Workspace/Shared/...                 (production mode)
+```
+
 ## Production Hardening Roadmap
 Planned enhancements to evolve this project toward a production-grade data platform:
 
+### Data Engineering Improvements
 - Incremental bronze ingestion (append-only / backfill-safe loads)
-- MERGE-based upserts in silver to handle late-arriving updates
-- Data quality validation layer (constraints / expectations and fail-fast checks)
-- CI/CD via GitHub Actions (automated `bundle validate`, deploy, and promotion gates)
-- Environment promotion workflow (dev → uat → prod) with approval steps
-- Governance hardening:
-  - Row-level security (RLS) for audience-specific access
-  - Column masking for sensitive fields (e.g., PII)
-  - Gold-only exposure patterns for most consumers
-- Secure data access API:
-  - Service-to-service auth (no user tokens)
-  - Read-only access scoped to approved gold datasets
-  - Rate limiting, auditing, and least-privilege access
-- Downstream consumption separation:
-  - Separate repository (or repos) for visualization layers (Dashboards / BI)
-  - Treat gold datasets as stable contracts for external consumers
+- MERGE-based upserts in silver to support late-arriving updates
+- Data quality validation layer (constraints / expectations)
+### CI/CD Improvements
+- Automated job smoke tests after deployment
+- Deployment summary output in CI logs
+- Data validation checks during CI
+### Governance Enhancements
+- Row-level security (RLS)
+- Column masking for sensitive fields
+- Gold layer-only access patterns
+### Data Access Patterns
+- Secure data access APIs
+- Service-to-service authentication
+- Rate limiting and audit logging
+- Least-privilege dataset access
+### Downstream Consumption
+- Separate repositories for dashboards / BI
+- Gold-layer datasets treated as stable contracts for external consumers
